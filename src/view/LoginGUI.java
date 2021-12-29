@@ -6,6 +6,10 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import Helper.*;
+import Model.HeadDoctor;
+
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
@@ -15,6 +19,10 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.awt.event.ActionEvent;
 import javax.swing.JPasswordField;
 
@@ -25,6 +33,7 @@ public class LoginGUI extends JFrame {
 	private JTextField fild_password;
 	private JTextField fild_doctor_pasp;
 	private JPasswordField fild_docotr_passw;
+	private DBConnection conn = new DBConnection();
 
 	/**
 	 * Launch the application.
@@ -136,7 +145,32 @@ public class LoginGUI extends JFrame {
 		btn_Login_Personal.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(fild_doctor_pasp.getText().length() == 0 || fild_docotr_passw.getText().length() ==0 ) {
-					JOptionPane.showMessageDialog(null, "ERROR! Please fill in the fields! ");
+					Helper.showMsg("fill");
+				}
+				else {
+					
+
+					try {
+						Connection con = conn.connDB();
+						Statement st = con.createStatement();
+						ResultSet rs = st.executeQuery("select * from user1");
+						while(rs.next()) {
+							if(fild_doctor_pasp.getText().equals(rs.getString("pasp")) && fild_docotr_passw.getText().equals(rs.getString("password"))) {
+								HeadDoctor head =  new HeadDoctor();
+								head.setId(rs.getInt("id"));
+								head.setPassword("password");
+								head.setPasp(rs.getString("pasp"));
+								head.setName(rs.getString("name"));
+								head.setType(rs.getString("type"));
+								HeadDoctorGUI hGUI = new HeadDoctorGUI(head);
+								hGUI.setVisible(true);
+								dispose();
+							}
+						}
+					} 
+					catch (SQLException e1) {
+						e1.printStackTrace();
+					}
 				}
 			}
 		});

@@ -10,7 +10,7 @@ public class DBConnection {
 	
 	public Connection connDB() {
 		try {
-			this.c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/medical?user=postgress&password=admin");
+			this.c = DriverManager.getConnection("jdbc:postgresql://localhost:5432/medical?user=postgres&password=admin");
 			return c;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

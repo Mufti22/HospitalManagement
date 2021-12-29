@@ -1,0 +1,1 @@
+INSERT INTO user1 (id, pasp, password, name, type) VALUES (1::integer, '123'::varchar(15), '123'::varchar(255), 'MuftiFan'::varchar(255), 'headdoctor'::enum1)
