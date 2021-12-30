@@ -9,6 +9,9 @@ public class Helper {
 			case "fill":
 				msg = "ERROR! Please fill in the fields!";
 				break;
+			case "sucsess" :
+				msg = "Great!";
+				break;
 			default:
 				msg = str;
 			}

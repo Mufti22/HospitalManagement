@@ -2,6 +2,7 @@ package Model;
 
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -11,6 +12,7 @@ public class HeadDoctor extends user {
 	Connection con = conn.connDB();
 	Statement st = null;
 	ResultSet rs = null;
+	PreparedStatement preparedStatement = null;
 
 	public HeadDoctor(int id, String pasp, String password, String name, String type) {
 		super(id, pasp, password, name, type);
@@ -36,4 +38,30 @@ public class HeadDoctor extends user {
 		
         return list;
 	}
+	public boolean addDoctor(String pasp, String password, String name ) throws SQLException {
+		
+		String query = "insert into user1 (pasp, password, name, type)  values (?,?,?,?)";
+		
+		boolean key = false; 
+		try {
+			st = con.createStatement();
+			preparedStatement = con.prepareStatement(query);
+			preparedStatement.setString(1, password);
+			preparedStatement.setString(2, name);
+			preparedStatement.setString(3, pasp);
+			preparedStatement.setString(4, "doctor");
+			preparedStatement.executeUpdate();
+			key = true;
+		} catch (Exception e) {
+		e.printStackTrace();	
+		}
+		
+		if(key) 
+			return true;
+		else
+			return false;
+		
+
+	}
+	
 }

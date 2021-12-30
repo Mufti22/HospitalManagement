@@ -2,7 +2,7 @@ package view;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
-
+import Helper.*;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -20,6 +20,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 
 public class HeadDoctorGUI extends JFrame {
@@ -88,6 +90,13 @@ public class HeadDoctorGUI extends JFrame {
 		w_pane.add(lblNewLabel);
 		
 		JButton btnNewButton = new JButton("Exit");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				LoginGUI lGUI = new LoginGUI();
+				lGUI.setVisible(true);
+				dispose();
+			}
+		});
 		btnNewButton.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 12));
 		btnNewButton.setBounds(608, 11, 85, 21);
 		w_pane.add(btnNewButton);
@@ -128,6 +137,29 @@ public class HeadDoctorGUI extends JFrame {
 		w_doctor.add(label_2_passw);
 		
 		JButton btn_addDoctor = new JButton("Add Doctor");
+		btn_addDoctor.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(fld_dName.getText().length() == 0 || fld_dPassp.getText().length() == 0 || fld_dPassw.getText().length() == 0 ) {
+					Helper.showMsg("fill");
+				} else {
+					try {
+						boolean control = headdoctor.addDoctor (fld_dName.getText(), fld_dPassp.getText(), fld_dPassw.getText());
+						if(control) {
+							Helper.showMsg("sucsess");
+							fld_dName.setText(null);
+							fld_dPassp.setText(null);
+							fld_dPassw.setText(null);
+							updateDoctorModel();
+						}
+					
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					
+				}
+			}
+		});
 		btn_addDoctor.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 15));
 		btn_addDoctor.setBounds(517, 224, 131, 21);
 		w_doctor.add(btn_addDoctor);
@@ -158,5 +190,17 @@ public class HeadDoctorGUI extends JFrame {
 		
 		table_doctor = new JTable(doctorModel);
 		w_scrollDoctor.setViewportView(table_doctor);
+	}
+	
+	public void updateDoctorModel () throws SQLException {
+		DefaultTableModel clearModel = (DefaultTableModel) table_doctor.getModel();
+		clearModel.setRowCount(0);
+		for(int i = 0; i < headdoctor.getDoctorList().size(); i++ ) {
+			doctorData[0]= headdoctor.getDoctorList().get(i).getId();
+			doctorData[1]= headdoctor.getDoctorList().get(i).getName();
+			doctorData[2]= headdoctor.getDoctorList().get(i).getPasp();
+			doctorData[3]= headdoctor.getDoctorList().get(i).getPassword();
+			doctorModel.addRow(doctorData);
+		}
 	}
 }
