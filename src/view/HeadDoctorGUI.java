@@ -6,6 +6,10 @@ import Helper.*;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
 import Model.HeadDoctor;
@@ -30,7 +34,7 @@ public class HeadDoctorGUI extends JFrame {
 	private JTextField fld_dName;
 	private JTextField fld_dPassp;
 	private JTextField fld_dPassw;
-	private JTextField textField_1;
+	private JTextField fld_doctorID;
 	private JTable table_doctor;
 	private DefaultTableModel doctorModel = null;
 	private Object[] doctorData = null;
@@ -174,12 +178,38 @@ public class HeadDoctorGUI extends JFrame {
 		label_3_id.setBounds(517, 268, 89, 29);
 		w_doctor.add(label_3_id);
 		
-		textField_1 = new JTextField();
-		textField_1.setColumns(10);
-		textField_1.setBounds(517, 307, 163, 21);
-		w_doctor.add(textField_1);
+		fld_doctorID = new JTextField();
+		fld_doctorID.setColumns(10);
+		fld_doctorID.setBounds(517, 307, 163, 21);
+		w_doctor.add(fld_doctorID);
 		
 		JButton btn_delDoctor_2 = new JButton("Delete Doctor");
+		btn_delDoctor_2.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(fld_doctorID.getText().length() == 0) {
+					Helper.showMsg("Please choose the correct ID !");
+				}
+				else {
+					if(Helper.confirm("sure")) {
+						int selectId = Integer.parseInt(fld_doctorID.getText());
+						try {
+							boolean control = headdoctor.deleteDoctor(selectId);
+							if(control) {
+								Helper.showMsg("success");
+								fld_doctorID.setText(null);
+								updateDoctorModel();
+							}
+							
+						} catch (SQLException e1) {
+							
+							e1.printStackTrace();
+						}
+					}
+
+				}
+				
+			}
+		});
 		btn_delDoctor_2.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 15));
 		btn_delDoctor_2.setBounds(517, 338, 131, 21);
 		w_doctor.add(btn_delDoctor_2);
@@ -190,6 +220,36 @@ public class HeadDoctorGUI extends JFrame {
 		
 		table_doctor = new JTable(doctorModel);
 		w_scrollDoctor.setViewportView(table_doctor);
+		table_doctor.getSelectionModel().addListSelectionListener( new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent e) {
+				try {
+					fld_doctorID.setText(table_doctor.getValueAt(table_doctor.getSelectedRow(), 0).toString());
+				} catch(Exception ex) {
+					
+				}
+				
+			}
+		});
+			table_doctor.getModel().addTableModelListener(new TableModelListener() {
+				public void tableChanged(TableModelEvent e) {
+				if(e.getType() == TableModelEvent.UPDATE) {
+					int selectId = Integer.parseInt(table_doctor.getValueAt(table_doctor.getSelectedRow(),0).toString());
+					String selectName = table_doctor.getValueAt(table_doctor.getSelectedRow(),1).toString();
+					String selectPasp = table_doctor.getValueAt(table_doctor.getSelectedRow(),2).toString();
+					String selectPassw = table_doctor.getValueAt(table_doctor.getSelectedRow(),3).toString();
+					try {
+						boolean control =headdoctor.updateDoctor(selectId, selectPasp, selectPassw, selectName);
+						if(control) {
+							Helper.showMsg("success");
+						}
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+				}
+				
+			});
 	}
 	
 	public void updateDoctorModel () throws SQLException {
