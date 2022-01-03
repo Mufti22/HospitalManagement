@@ -7,51 +7,78 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-public class HeadDoctor extends user {
+import Helper.DBConnection;
+
+public class Clinic {
+
+	DBConnection conn = new DBConnection();
 	Connection con = conn.connDB();
 	Statement st = null;
 	ResultSet rs = null;
 	PreparedStatement preparedStatement = null;
 
-	public HeadDoctor(int id, String pasp, String password, String name, String type) {
-		super(id, pasp, password, name, type);
+	private int id;
+	private String name;
+
+	public Clinic() {
+
 	}
 
-	public HeadDoctor() {
+	public int getId() {
+		return id;
 	}
 
-	public ArrayList<user> getDoctorList() throws SQLException {
+	public void setId(int id) {
+		this.id = id;
+	}
 
-		ArrayList<user> list = new ArrayList<>();
-		user obj;
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Clinic(int id, String name) {
+		super();
+		this.id = id;
+		this.name = name;
+	}
+
+	public ArrayList<Clinic> getClinicList() throws SQLException {
+
+		ArrayList<Clinic> list = new ArrayList<>();
+		Clinic obj;
+		Connection con = conn.connDB();
 		try {
 			st = con.createStatement();
-			rs = st.executeQuery("select * from user1 where type = 'doctor'");
+			rs = st.executeQuery("select * from clinic ");
 			while (rs.next()) {
-				obj = new user(rs.getInt("id"), rs.getString("pasp"), rs.getString("password"), rs.getString("name"),
-						rs.getString("type"));
+				obj = new Clinic();
+				obj.setId(rs.getInt("id"));
+				obj.setName(rs.getString("name"));
 				list.add(obj);
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} finally {
+			st.close();
+			rs.close();
+			con.close();
 		}
-
 		return list;
 	}
 
-	public boolean addDoctor(String pasp, String password, String name) throws SQLException {
+	public boolean addClinic(String name) throws SQLException {
 
-		String query = "insert into user1 (pasp, password, name, type)  values (?,?,?,?)";
-
+		String query = "insert into clinic (name)  values (?)";
 		boolean key = false;
+		Connection con = conn.connDB();
 		try {
 			st = con.createStatement();
 			preparedStatement = con.prepareStatement(query);
-			preparedStatement.setString(1, password);
-			preparedStatement.setString(2, name);
-			preparedStatement.setString(3, pasp);
-			preparedStatement.setString(4, "doctor");
+			preparedStatement.setString(1, name);
 			preparedStatement.executeUpdate();
 			key = true;
 		} catch (Exception e) {
@@ -65,10 +92,10 @@ public class HeadDoctor extends user {
 
 	}
 
-	public boolean deleteDoctor(int id) throws SQLException {
+	public boolean deleteClinic(int id) throws SQLException {
 
-		String query = "delete from user1 where id = ?";
-
+		String query = "delete from clinic where id = ?";
+		Connection con = conn.connDB();
 		boolean key = false;
 		try {
 			st = con.createStatement();
@@ -87,18 +114,16 @@ public class HeadDoctor extends user {
 
 	}
 
-	public boolean updateDoctor(int id, String pasp, String password, String name) throws SQLException {
+	public boolean updateClinic(int id, String name) throws SQLException {
 
-		String query = "update user1 set name=?, pasp=?, password=? where id = ?";
-
+		String query = "update clinic set name=? where id = ?";
+		Connection con = conn.connDB();
 		boolean key = false;
 		try {
 			st = con.createStatement();
 			preparedStatement = con.prepareStatement(query);
 			preparedStatement.setString(1, name);
-			preparedStatement.setString(2, pasp);
-			preparedStatement.setString(3, password);
-			preparedStatement.setInt(4, id);
+			preparedStatement.setInt(2, id);
 			preparedStatement.executeUpdate();
 			key = true;
 		} catch (Exception e) {
