@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 import Helper.*;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -17,7 +18,10 @@ import Model.HeadDoctor;
 
 import java.awt.Color;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+
 import java.awt.Font;
+import java.awt.Point;
 import java.sql.SQLException;
 
 import javax.swing.JButton;
@@ -26,6 +30,10 @@ import javax.swing.JTextField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.event.ActionEvent;
 
 public class HeadDoctorGUI extends JFrame {
@@ -43,6 +51,7 @@ public class HeadDoctorGUI extends JFrame {
 	private JTextField fld_clinicName;
 	private DefaultTableModel clinicModel = null;
 	private Object[] clinicData = null;
+	private JPopupMenu clinicMenu;
 
 	/**
 	 * Launch the application.
@@ -251,7 +260,75 @@ public class HeadDoctorGUI extends JFrame {
 		w_scrollClinic.setBounds(10, 10, 214, 359);
 		w_clinic.add(w_scrollClinic);
 
+		clinicMenu = new JPopupMenu();
+		JMenuItem updateMenu = new JMenuItem("Update");
+		JMenuItem deleteMenu = new JMenuItem("Delete");
+		clinicMenu.add(updateMenu);
+		clinicMenu.add(deleteMenu);
+
+		updateMenu.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int selID = Integer.parseInt(table_clinic.getValueAt(table_clinic.getSelectedRow(), 0).toString());
+				Clinic selectClinic = clinic.getFetch(selID);
+				UpdateClinicGUI updateGUI = new UpdateClinicGUI(selectClinic);
+				updateGUI.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+				;
+				updateGUI.setVisible(true);
+				updateGUI.addWindowListener(new WindowAdapter() {
+
+					@Override
+					public void windowClosed(WindowEvent e) {
+						try {
+							updateClinicModel();
+						} catch (SQLException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+				});
+				// TODO Auto-generated method stub
+
+			}
+		});
+
+		deleteMenu.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (Helper.confirm("sure")) {
+					int selID = Integer.parseInt(table_clinic.getValueAt(table_clinic.getSelectedRow(), 0).toString());
+					try {
+						if (clinic.deleteClinic(selID)) {
+							Helper.showMsg("sucsess");
+							updateClinicModel();
+						} else {
+							Helper.showMsg("fill");
+						}
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+
+				}
+
+				// TODO Auto-generated method stub
+
+			}
+		});
+
 		table_clinic = new JTable(clinicModel);
+		table_clinic.setComponentPopupMenu(clinicMenu);
+		table_clinic.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				Point point = e.getPoint();
+				int selectedRow = table_clinic.rowAtPoint(point);
+				table_clinic.setRowSelectionInterval(selectedRow, selectedRow);
+
+			}
+		});
 		w_scrollClinic.setViewportView(table_clinic);
 
 		JLabel label_name_1 = new JLabel("Polyclinc Name");

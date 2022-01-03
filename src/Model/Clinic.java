@@ -137,4 +137,23 @@ public class Clinic {
 
 	}
 
+	public Clinic getFetch(int id) {
+		Connection con = conn.connDB();
+		Clinic c = new Clinic();
+		try {
+			st = con.createStatement();
+			rs = st.executeQuery("select * from clinic where id = " + id);
+			while (rs.next()) {
+				c.setId(rs.getInt("id"));
+				c.setName(rs.getString("name"));
+				break;
+			}
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return c;
+	}
+
 }
