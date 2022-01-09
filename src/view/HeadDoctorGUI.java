@@ -35,6 +35,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.ActionEvent;
+import javax.swing.JComboBox;
 
 public class HeadDoctorGUI extends JFrame {
 	static HeadDoctor headdoctor = new HeadDoctor();
@@ -52,6 +53,7 @@ public class HeadDoctorGUI extends JFrame {
 	private DefaultTableModel clinicModel = null;
 	private Object[] clinicData = null;
 	private JPopupMenu clinicMenu;
+	private JTable table_staff;
 
 	/**
 	 * Launch the application.
@@ -106,6 +108,12 @@ public class HeadDoctorGUI extends JFrame {
 
 			clinicModel.addRow(clinicData);
 		}
+		DefaultTableModel staffModel = new DefaultTableModel();
+		Object[] colStaff = new Object[2];
+		colStaff[0] = "ID";
+		colStaff[1] = "Name";
+		staffModel.setColumnIdentifiers(colStaff);
+		Object[] staffData = new Object[2];
 
 		setTitle("Head Doctor Panel");
 		setResizable(false);
@@ -333,12 +341,12 @@ public class HeadDoctorGUI extends JFrame {
 
 		JLabel label_name_1 = new JLabel("Polyclinc Name");
 		label_name_1.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 15));
-		label_name_1.setBounds(234, 10, 114, 29);
+		label_name_1.setBounds(281, 10, 114, 29);
 		w_clinic.add(label_name_1);
 
 		fld_clinicName = new JTextField();
 		fld_clinicName.setColumns(10);
-		fld_clinicName.setBounds(234, 41, 131, 21);
+		fld_clinicName.setBounds(281, 41, 154, 44);
 		w_clinic.add(fld_clinicName);
 
 		JButton btn_addPolyclinc = new JButton("Add Polyclinc");
@@ -362,14 +370,95 @@ public class HeadDoctorGUI extends JFrame {
 			}
 		});
 		btn_addPolyclinc.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 15));
-		btn_addPolyclinc.setBounds(234, 72, 131, 21);
+		btn_addPolyclinc.setBounds(281, 95, 154, 40);
 		w_clinic.add(btn_addPolyclinc);
 
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(376, 10, 325, 359);
-		w_clinic.add(scrollPane);
+		JScrollPane w_scrollStaff = new JScrollPane();
+		w_scrollStaff.setBounds(487, 10, 214, 359);
+		w_clinic.add(w_scrollStaff);
+
+		table_staff = new JTable();
+		w_scrollStaff.setViewportView(table_staff);
+
+		JComboBox select_doctor = new JComboBox();
+		select_doctor.setBounds(281, 261, 154, 40);
+		for (int i = 0; i < headdoctor.getDoctorList().size(); i++) {
+			select_doctor.addItem(
+					new Item(headdoctor.getDoctorList().get(i).getId(), headdoctor.getDoctorList().get(i).getName()));
+
+		}
+		select_doctor.addActionListener(e -> {
+			JComboBox c = (JComboBox) e.getSource();
+			Item item = (Item) c.getSelectedItem();
+
+		});
+
+		w_clinic.add(select_doctor);
+
+		JButton btn_addStaff = new JButton("Add Doctor");
+		btn_addStaff.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int selRow = table_clinic.getSelectedRow();
+				if (selRow >= 0) {
+					String selClinic = table_clinic.getModel().getValueAt(selRow, 0).toString();
+					int selClinicID = Integer.parseInt(selClinic);
+					Item doctorItem = (Item) select_doctor.getSelectedItem();
+					try {
+						boolean control = headdoctor.addStaff(doctorItem.getKey(), selClinicID);
+						if (control) {
+							Helper.showMsg("sucsess");
+						} else {
+							Helper.showMsg("Error");
+						}
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				} else {
+					Helper.showMsg("Error!");
+				}
+			}
+		});
+		btn_addStaff.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 15));
+		btn_addStaff.setBounds(281, 317, 154, 40);
+		w_clinic.add(btn_addStaff);
+
+		JLabel label_name_1_1 = new JLabel("Polyclinc Name");
+		label_name_1_1.setFont(new Font("Segoe UI Semibold", Font.PLAIN, 15));
+		label_name_1_1.setBounds(281, 157, 114, 29);
+		w_clinic.add(label_name_1_1);
+
+		JButton btn_staffSelect = new JButton("Select");
+		btn_staffSelect.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int selRow = table_clinic.getSelectedRow();
+				if (selRow >= 0) {
+					String selClinic = table_clinic.getModel().getValueAt(selRow, 0).toString();
+					int selClinicID = Integer.parseInt(selClinic);
+					DefaultTableModel clearModel = (DefaultTableModel) table_staff.getModel();
+					clearModel.setRowCount(0);
+					try {
+						for (int i = 0; i < headdoctor.getClinicDoctorList(selClinicID).size(); i++) {
+							staffData[0] = headdoctor.getClinicDoctorList(selClinicID).get(i).getId();
+							staffData[1] = headdoctor.getClinicDoctorList(selClinicID).get(i).getName();
+							staffModel.addRow(staffData);
+						}
+					} catch (SQLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					table_staff.setModel(staffModel);
+				} else {
+					Helper.showMsg("Error!");
+				}
+			}
+		});
+		btn_staffSelect.setFont(new Font("Segoe UI Semilight", Font.PLAIN, 15));
+		btn_staffSelect.setBounds(281, 191, 154, 40);
+		w_clinic.add(btn_staffSelect);
 		table_doctor.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent e) {
+
 				try {
 					fld_doctorID.setText(table_doctor.getValueAt(table_doctor.getSelectedRow(), 0).toString());
 				} catch (Exception ex) {
@@ -423,5 +512,4 @@ public class HeadDoctorGUI extends JFrame {
 			clinicModel.addRow(clinicData);
 		}
 	}
-
 }
