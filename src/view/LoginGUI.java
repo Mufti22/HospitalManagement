@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import Helper.*;
+import Model.Doctor;
 import Model.HeadDoctor;
 
 import javax.swing.JLabel;
@@ -156,15 +157,28 @@ public class LoginGUI extends JFrame {
 						while (rs.next()) {
 							if (fild_doctor_pasp.getText().equals(rs.getString("pasp"))
 									&& fild_docotr_passw.getText().equals(rs.getString("password"))) {
-								HeadDoctor head = new HeadDoctor();
-								head.setId(rs.getInt("id"));
-								head.setPassword("password");
-								head.setPasp(rs.getString("pasp"));
-								head.setName(rs.getString("name"));
-								head.setType(rs.getString("type"));
-								HeadDoctorGUI hGUI = new HeadDoctorGUI(head);
-								hGUI.setVisible(true);
-								dispose();
+								if(rs.getString("type").equals("headdoctor")) {
+									HeadDoctor head = new HeadDoctor();
+									head.setId(rs.getInt("id"));
+									head.setPassword("password");
+									head.setPasp(rs.getString("pasp"));
+									head.setName(rs.getString("name"));
+									head.setType(rs.getString("type"));
+									HeadDoctorGUI hGUI = new HeadDoctorGUI(head);
+									hGUI.setVisible(true);
+									dispose();
+								}
+								if(rs.getString("type").equals("doctor")) {
+									Doctor doctor = new Doctor();
+									doctor.setId(rs.getInt("id"));
+									doctor.setPassword("password");
+									doctor.setPasp(rs.getString("pasp"));
+									doctor.setName(rs.getString("name"));
+									doctor.setType(rs.getString("type"));
+									DoctorGUI dGUI = new DoctorGUI(doctor);
+									dGUI.setVisible(true);
+									dispose();
+								}
 							}
 						}
 					} catch (SQLException e1) {
